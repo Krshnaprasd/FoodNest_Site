@@ -2,12 +2,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHamburger } from '@fortawesome/free-solid-svg-icons';
 
 import { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
-import Form from 'react-bootstrap/Form';
+
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -15,6 +15,15 @@ import Navbar from 'react-bootstrap/Navbar';
 const HomePage = () => {
 
 
+  const [Home] = [
+    {
+      video: "../src/assets/food.mp4",
+      img: "../src/assets/Chicken.png",
+      img1: "../src/assets/pizza.png"
+
+
+    }
+  ]
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -23,6 +32,8 @@ const HomePage = () => {
   const [show1, setShow1] = useState(false);
   const handleClose1 = () => setShow1(false);
   const handleShow1 = () => setShow1(true);
+
+  // ==========================================Signup ========================================= 
 
   const [User, setUser] = useState({
     username: '',
@@ -34,19 +45,35 @@ const HomePage = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setUser({ ...User, [name]: value });
-    console.log(User);
+  };
 
+  const validatePhoneNumber = (mobileNo) => {
+    const phoneRegex = /^\d{10}$/; // Regex to check for exactly 10 digits
+    return phoneRegex.test(mobileNo);
+  };
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    // Ensures one uppercase, one number, one special character, and at least 8 characters
+    return passwordRegex.test(password);
   };
 
   const handleSubmit = async (e) => {
- e.preventDefault()
+    e.preventDefault();
 
-    const userData = {
-      username: User.username,
-      email: User.email,
-      mobileNo: User.mobileNo,
-      password: User.password
-    };
+    const { username, email, mobileNo, password } = User;
+
+    if (!validatePhoneNumber(mobileNo)) {
+      toast.error('Mobile number must be exactly 10 digits.');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      toast.error('Password must contain at least one uppercase letter, one number, and one special character.');
+      return;
+    }
+
+    const userData = { username, email, mobileNo, password };
 
     try {
       const response = await fetch('http://localhost:5050/Signup/addUser', {
@@ -55,19 +82,30 @@ const HomePage = () => {
         body: JSON.stringify(userData),
       });
 
-      // Parse the JSON response
       const data = await response.json();
 
       if (response.ok) {
-        console.log(data.message) // Successfully signed up
-        resetForm();
+
+        toast.success('Signup successful!', {
+          position: 'top-center'
+        }
+        );
+        setTimeout(() => {
+          resetForm();
+          handleClose(); // Close the modal
+          navigate('/'); // Redirect to homepage
+        }, 2000);
       } else {
-        console.error('Signup error:', data.message);
+        toast.error(`Signup error: ${data.message}`, {
+          position: 'top-center'
+        });
       }
     } catch (error) {
-      console.error('There was an error signing up:', error);
+      toast.error('There was an error signing up.', error, {
+        position: 'top-center'
+      });
     }
-    
+
   };
 
   const resetForm = () => {
@@ -77,17 +115,61 @@ const HomePage = () => {
       mobileNo: '',
       password: '',
     });
+    console.log("reset called");
+
   };
 
-  const [Home] = [
-    {
-      video: "../src/assets/food.mp4",
-      img: "../src/assets/Chicken.png",
-      img1: "../src/assets/pizza.png"
+  // ==============================================Login ====================================================
+
+  const [Users, setUsers] = useState({
+    username: '',
+    password: '',
+  });
+
+  const navigate = useNavigate();
+
+  const handleChange1 = (event) => {
+    const { name, value } = event.target;
+    setUsers({ ...Users, [name]: value });
+  };
+
+  const handleSubmit1 = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('http://localhost:5050/login/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Users),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
 
 
+        toast.success('Login successful!', {
+          position: 'top-center'
+        });
+        setTimeout(() => {
+          resetForm();
+          handleClose1(); // Close the modal
+          navigate('/'); // Redirect to homepage
+        }, 2000);
+      } else {
+        toast.error(data.message,
+          {
+            position: 'top-center'
+          });
+      }
+    } catch (error) {
+      toast.error('There was an error logging in.', error, {
+        position: 'top-center'
+      });
     }
-  ]
+
+  };
+
 
   return (
     <>
@@ -121,27 +203,13 @@ const HomePage = () => {
             <div className='text-center fw-bolder '><h3>Login</h3></div><br></br>
           </Modal.Header>
           <Modal.Body className=' p-4'>
-            <Form>
-              <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+            <div className="text-center">
+              <input type="text" name="username" className="mb-3" placeholder="Username" onChange={handleChange1} />
+              <input type="password" name="password" className="mb-3" placeholder="Password" onChange={handleChange1} /><br />
+              <button className="fd-btn  border-0 fw-bolder text-white" onClick={handleSubmit1}>Submit</button>
 
-                <Form.Control
-                  type="text"
-                  placeholder="Name-Example"
-                  autoFocus
-                />
-              </Form.Group>
-              <Form.Group className="mb-4" controlId="exampleForm.ControlInput4">
-
-                <Form.Control
-                  type="password"
-                  placeholder="Password"
-                  autoFocus
-                />
-              </Form.Group>
-            </Form>
-            <div className='text-center'>
-              <Button className='fd-btn border-0 fw-bolder '  ><h6>Submit</h6></Button>
-
+              {/* Toast container to show notifications */}
+              <ToastContainer />
             </div>
           </Modal.Body>
 
@@ -175,16 +243,17 @@ const HomePage = () => {
                     </Modal.Header>
                     <Modal.Body className=' p-4'>
                       <div className="text-center">
-                        <input type="text" name="username" className='mb-3' placeholder="Name-Example" onChange={handleChange} />
-                        <input type="email" name="email" className='mb-3' placeholder="name@gmailExample" onChange={handleChange} />
-                        <input type="number" name="mobileNo" className='mb-3' placeholder="MobileNo" onChange={handleChange} />
-                        <input type="password" name="password" className='mb-3' placeholder="Password" onChange={handleChange} />
-                      </div>
+                        {/* Binding input values to the state */}
+                        <input type="text" name="username" className="mb-3" placeholder="Name-Example" value={User.username} onChange={handleChange} />
+                        <input type="email" name="email" className="mb-3" placeholder="name@gmailExample" value={User.email} onChange={handleChange} />
+                        <input type="number" name="mobileNo" className="mb-3" placeholder="MobileNo" value={User.mobileNo} onChange={handleChange} />
+                        <input type="password" name="password" className="mb-3" placeholder="Password" value={User.password} onChange={handleChange} /><br />
+                        <Button className="fd-btn border-0 fw-bolder" onClick={handleSubmit}>
+                          <h6>Submit</h6>
+                        </Button>
 
-
-                      <div className='text-center'>
-                        <Button className='fd-btn border-0 fw-bolder ' onClick={handleSubmit}><h6>Submit</h6></Button>
-
+                        {/* Toast container to show notifications */}
+                        <ToastContainer />
                       </div>
                     </Modal.Body>
 
