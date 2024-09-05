@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHamburger } from '@fortawesome/free-solid-svg-icons';
 
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import Modal from 'react-bootstrap/Modal';
@@ -85,16 +86,20 @@ const HomePage = () => {
       const data = await response.json();
 
       if (response.ok) {
-
+        localStorage.setItem('username', username);
         toast.success('Signup successful!', {
           position: 'top-center'
-        }
-        );
+        });
+        setUser({ username: '', email: '', mobileNo: '', password: '' }); 
+        handleClose(); 
+        navigate('/'); 
         setTimeout(() => {
-          resetForm();
-          handleClose(); // Close the modal
-          navigate('/'); // Redirect to homepage
-        }, 2000);
+          toast.success(`Welcome, ${username}!`, {
+            position: 'top-center',
+            autoClose: 3000,
+          });
+        }, 100); 
+
       } else {
         toast.error(`Signup error: ${data.message}`, {
           position: 'top-center'
@@ -108,16 +113,7 @@ const HomePage = () => {
 
   };
 
-  const resetForm = () => {
-    setUser({
-      username: '',
-      email: '',
-      mobileNo: '',
-      password: '',
-    });
-    console.log("reset called");
-
-  };
+  
 
   // ==============================================Login ====================================================
 
@@ -147,15 +143,20 @@ const HomePage = () => {
 
       if (response.ok) {
 
+        localStorage.setItem('username', Users.username);
 
         toast.success('Login successful!', {
           position: 'top-center'
         });
+        setUsers({ username: '', password: '' }); // Reset form
+        handleClose1(); 
+        navigate('/'); 
         setTimeout(() => {
-          resetForm();
-          handleClose1(); // Close the modal
-          navigate('/'); // Redirect to homepage
-        }, 2000);
+          toast.success(`Welcome, ${Users.username}!`, {
+            position: 'top-center',
+            autoClose: 3000,
+          });
+        }, 100);
       } else {
         toast.error(data.message,
           {
@@ -170,9 +171,34 @@ const HomePage = () => {
 
   };
 
+  // ==============================================Alert ==================================
+  useEffect(() => {
+    // Get the username from localStorage
+    const storedUsername = localStorage.getItem('username');
+    console.log(storedUsername);
+
+    if (storedUsername) {
+      // Display welcome toast
+      toast.success(`Welcome, ${storedUsername}!`, {
+        position: 'top-center',
+        autoClose: 3000,
+      });
+
+
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    toast.info('You have logged out.', { position: 'top-center', autoClose: 3000 });
+    navigate('/');
+  };
+
+
 
   return (
     <>
+     <ToastContainer /> {/* Toast container to display notifications */}
       <div className="container-fluid fd-nav" >
         <Navbar collapseOnSelect expand="lg" className="">
           <Container>
@@ -193,30 +219,30 @@ const HomePage = () => {
                 <Nav.Link><i className="bi bi-arrow-clockwise text-white fw-bolder"></i></Nav.Link>
                 <Nav.Link><i className="bi bi-cart-plus-fill text-white fw-bolder"></i></Nav.Link>
                 <Nav.Link><i className="bi bi-bag-check-fill text-white fw-bolder"></i></Nav.Link>
-                <Nav.Link onClick={handleShow1}><i className="bi bi-box-arrow-left text-white fw-bolder"></i></Nav.Link>
+                <Nav.Link onClick={handleShow1}><i className="bi bi-box-arrow-in-down text-white fw-bolder"></i></Nav.Link>
+
+                <Nav.Link onClick={handleLogout}><i className="bi bi-box-arrow-in-up text-white fw-bolder"></i></Nav.Link>
               </Nav>
             </Navbar.Collapse>
           </Container>
         </Navbar>
-        <Modal centered size="sm" show={show1} onHide={handleClose1}>
-          <Modal.Header closeButton>
-            <div className='text-center fw-bolder '><h3>Login</h3></div><br></br>
-          </Modal.Header>
-          <Modal.Body className=' p-4'>
-            <div className="text-center">
-              <input type="text" name="username" className="mb-3" placeholder="Username" onChange={handleChange1} />
-              <input type="password" name="password" className="mb-3" placeholder="Password" onChange={handleChange1} /><br />
-              <button className="fd-btn  border-0 fw-bolder text-white" onClick={handleSubmit1}>Submit</button>
-
-              {/* Toast container to show notifications */}
-              <ToastContainer />
-            </div>
-          </Modal.Body>
-
-        </Modal>
-
       </div>
+      <Modal centered size="sm" show={show1} onHide={handleClose1}>
+        <Modal.Header closeButton>
+          <div className='text-center fw-bolder '><h3>Login</h3></div><br></br>
+        </Modal.Header>
+        <Modal.Body className=' p-4'>
+          <div className="text-center">
+            <input type="text" name="username" className="mb-3" placeholder="Username" onChange={handleChange1} />
+            <input type="password" name="password" className="mb-3" placeholder="Password" onChange={handleChange1} /><br />
+            <button className="fd-btn  border-0 fw-bolder text-white" onClick={handleSubmit1}>Submit</button>
 
+            {/* Toast container to show notifications */}
+
+          </div>
+        </Modal.Body>
+
+      </Modal>
 
 
       <div >
@@ -245,15 +271,14 @@ const HomePage = () => {
                       <div className="text-center">
                         {/* Binding input values to the state */}
                         <input type="text" name="username" className="mb-3" placeholder="Name-Example" value={User.username} onChange={handleChange} />
-                        <input type="email" name="email" className="mb-3" placeholder="name@gmailExample" value={User.email} onChange={handleChange} />
+                        <input type="email" name="email" className="mb-3" placeholder="Mail@Example" value={User.email} onChange={handleChange} />
                         <input type="number" name="mobileNo" className="mb-3" placeholder="MobileNo" value={User.mobileNo} onChange={handleChange} />
                         <input type="password" name="password" className="mb-3" placeholder="Password" value={User.password} onChange={handleChange} /><br />
                         <Button className="fd-btn border-0 fw-bolder" onClick={handleSubmit}>
                           <h6>Submit</h6>
                         </Button>
 
-                        {/* Toast container to show notifications */}
-                        <ToastContainer />
+
                       </div>
                     </Modal.Body>
 

@@ -1,9 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import './index.css'
-import './App.css'
-import 'react-toastify/dist/ReactToastify.css';
+
 import HomePage from './HomePage.jsx'
+import Product from './Product.jsx'
 
 function App() {
  
@@ -13,6 +12,7 @@ function App() {
       <BrowserRouter>
       <Routes>
         <Route path='/' element={<HomePage/>}/>
+        <Route path='/product' element={<Product/>}/>
       </Routes>
       </BrowserRouter>
     </>
