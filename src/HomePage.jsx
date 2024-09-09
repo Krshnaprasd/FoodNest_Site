@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import Menu from './Menu.jsx'
 
 const HomePage = () => {
 
@@ -199,6 +200,7 @@ const HomePage = () => {
   return (
     <>
      <ToastContainer /> {/* Toast container to display notifications */}
+     <div className="container-fluid">
       <div className="container-fluid fd-nav" >
         <Navbar collapseOnSelect expand="lg" className="">
           <Container>
@@ -292,6 +294,13 @@ const HomePage = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      </div>
+
+      <div className="container-fluid">
+        <div className="container">
+          <Menu/>
         </div>
       </div>
 
