@@ -1,5 +1,5 @@
 body, html {
-  position: relative;
+position: relative;
   margin: 0;
   padding: 0;
   height: 100%;
@@ -140,3 +140,7 @@ body, html {
 .minilogotxt{
 
 }
+.scnd-content{
+  margin-top: 600px;
+}
+  

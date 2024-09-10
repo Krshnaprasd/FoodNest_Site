@@ -200,7 +200,7 @@ const HomePage = () => {
   return (
     <>
      <ToastContainer /> {/* Toast container to display notifications */}
-     <div className="container-fluid">
+    
       <div className="container-fluid fd-nav" >
         <Navbar collapseOnSelect expand="lg" className="">
           <Container>
@@ -296,9 +296,9 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      </div>
+  
 
-      <div className="container-fluid">
+      <div className="container-fluid scnd-content">
         <div className="container">
           <Menu/>
         </div>
