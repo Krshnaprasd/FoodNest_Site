@@ -1,11 +1,106 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Menu = () => {
-  return (
-   <>
-   
-   </>
-  ) 
+    const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get('http://localhost:5050/category/all');
+                setCategories(response.data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    // Fetch products when category changes
+    // Fetch products based on the selected category
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get('http://localhost:5050/product', {
+                    params: {
+                        categoryId: selectedCategory !== '' ? selectedCategory : undefined, // Fetch all if empty
+                    },
+                });
+                setProducts(response.data);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        };
+
+        fetchProducts();
+    }, [selectedCategory]);
+
+
+    return (
+        <>
+
+<div className="container-fluid text-center pb-5">
+            <h1 className='pb-5 fw-bolder'>Our Nest's Menu</h1>
+            
+            <div className="row row-cols-lg-6 row-cols-md-3 row-cols-2 g-5 justify-content-evenly">
+                {/* All Category */}
+                <div 
+                    className={`col ${selectedCategory === '' ? 'active' : ''}`} 
+                    onClick={() => setSelectedCategory('')}>
+                    <img 
+                        className='menu-img img-fluid mb-3' 
+                        src="https://img.freepik.com/premium-photo/typical-indian-dish-thali-vegetarian-dishes-one-large-round-plate_549515-339.jpg" 
+                        alt="All"
+                    />
+                    <h5>All</h5>
+                </div>
+
+                {/* Display Categories */}
+                {categories.map(category => (
+                    <div 
+                        className={`col ${selectedCategory === category._id ? 'active' : ''}`} 
+                        key={category._id} 
+                        onClick={() => setSelectedCategory(category._id)}>
+                        <img 
+                            className='menu-img img-fluid mb-3' 
+                            src={category.image} 
+                            alt={category.name} 
+                        />
+                        <h5>{category.name}</h5>
+                    </div>
+                    
+                ))}
+                     <hr />
+            </div>
+
+       
+
+            {/* Display Products */}
+            <div className="container">
+                <div className="row row-cols-lg-5 row-cols-md-2 row-cols-1 justify-content-around g-4 mt-5 mb-5">
+                    {products.map(product => (
+                        <div className="col" key={product._id}>
+                            <div className="card">
+                                <img src={product.image} className="card-img" alt={product.name} style={{ height: 200 }} />
+                                <div className="card-body">
+                                    <h5>{product.name}</h5>
+                                    <p className="card-text">${product.price}</p>
+                                </div>
+                                <div>
+                                    <button className='prod-btn border-0 text-white mb-3'>Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        </>
+    )
 }
 
 export default Menu
