@@ -42,8 +42,8 @@ const Menu = () => {
     return (
         <>
 
-<div className="container-fluid text-center pb-5">
-            <h1 className='pb-5 fw-bolder'>Our Nest's Menu</h1>
+<div className="container-fluid text-center pb-5 pt-lg-5 pt-xl-0">
+            <h1 className='pb-5 fw-bolder pt-lg-5'>Our Nest's Menu</h1>
             
             <div className="row row-cols-lg-6 row-cols-md-3 row-cols-2 g-5 justify-content-evenly">
                 {/* All Category */}
@@ -80,7 +80,7 @@ const Menu = () => {
 
             {/* Display Products */}
             <div className="container">
-                <div className="row row-cols-lg-5 row-cols-md-2 row-cols-1 justify-content-around g-4 mt-5 mb-5">
+                <div className="row row-cols-xl-5 row-cols-md-3 row-cols-lg-4 row-cols-1 justify-content-around g-3 mt-5 mb-5">
                     {products.map(product => (
                         <div className="col" key={product._id}>
                             <div className="card">
