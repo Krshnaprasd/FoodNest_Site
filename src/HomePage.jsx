@@ -1,13 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHamburger } from '@fortawesome/free-solid-svg-icons';
-
+import axios from 'axios';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-
+import Offcanvas from 'react-bootstrap/Offcanvas';
 
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -26,7 +26,40 @@ const HomePage = () => {
 
     }
   ]
+  // ============================================= Cart ===========================================
+  const [cartItems, setCartItems] = useState([]);
+  const [show2, setShow2] = useState(false);
 
+  const handleClose2 = () => setShow2(false);
+  const handleShow2 = () => setShow2(true);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      const userId = localStorage.getItem('userId');
+
+      if (!userId) {
+        setCartItems([]); // Set cartItems to an empty array if no user is logged in
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:5050/cart/${userId}`);
+
+        if (response.data && response.data.items) {
+          setCartItems(response.data.items);  // Set items from the response
+        } else {
+          setCartItems([]); // If no items, set an empty array
+        }
+      } catch (error) {
+        console.error('Error fetching cart items', error);
+        setCartItems([]);  // Set empty array if API call fails
+      }
+    };
+
+    fetchCart();
+  }, []);
+
+  // ==============================================================================================
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -86,20 +119,27 @@ const HomePage = () => {
 
       const data = await response.json();
 
+      // if (data) {
+      //   localStorage.setItem("userId", data._id)
+      // }
+
       if (response.ok) {
+        if(data){
+          localStorage.setItem("userId",data._id)
+        }
         localStorage.setItem('username', username);
         toast.success('Signup successful!', {
           position: 'top-center'
         });
-        setUser({ username: '', email: '', mobileNo: '', password: '' }); 
-        handleClose(); 
-        navigate('/'); 
+        setUser({ username: '', email: '', mobileNo: '', password: '' });
+        handleClose();
+        navigate('/');
         setTimeout(() => {
-          toast.success(`Welcome, ${username}!`, {
+          toast.success(`Welcome, ${username}`, {
             position: 'top-center',
             autoClose: 3000,
           });
-        }, 100); 
+        }, 100);
 
       } else {
         toast.error(`Signup error: ${data.message}`, {
@@ -114,7 +154,7 @@ const HomePage = () => {
 
   };
 
-  
+
 
   // ==============================================Login ====================================================
 
@@ -142,16 +182,20 @@ const HomePage = () => {
 
       const data = await response.json();
 
+      
+
       if (response.ok) {
 
-        localStorage.setItem('username', Users.username);
+      
+          localStorage.setItem("userId",data._id)
+        localStorage.setItem('username', data.username);
 
-        toast.success('Login successful!', {
+        toast.success('Login successful', {
           position: 'top-center'
         });
         setUsers({ username: '', password: '' }); // Reset form
-        handleClose1(); 
-        navigate('/'); 
+        handleClose1();
+        navigate('/');
         setTimeout(() => {
           toast.success(`Welcome, ${Users.username}!`, {
             position: 'top-center',
@@ -180,7 +224,7 @@ const HomePage = () => {
 
     if (storedUsername) {
       // Display welcome toast
-      toast.success(`Welcome, ${storedUsername}!`, {
+      toast.success(`Welcome, ${storedUsername}`, {
         position: 'top-center',
         autoClose: 3000,
       });
@@ -190,6 +234,7 @@ const HomePage = () => {
   }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem('userId')
     localStorage.removeItem('username');
     toast.info('You have logged out.', { position: 'top-center', autoClose: 3000 });
     navigate('/');
@@ -199,8 +244,8 @@ const HomePage = () => {
 
   return (
     <>
-     <ToastContainer /> {/* Toast container to display notifications */}
-    
+      <ToastContainer /> {/* Toast container to display notifications */}
+
       <div className="container-fluid fd-nav" >
         <Navbar collapseOnSelect expand="lg" className="">
           <Container>
@@ -219,7 +264,7 @@ const HomePage = () => {
               </Nav>
               <Nav className='d-flex '>
                 <Nav.Link><i className="bi bi-arrow-clockwise text-white fw-bolder"></i></Nav.Link>
-                <Nav.Link><i className="bi bi-cart-plus-fill text-white fw-bolder"></i></Nav.Link>
+                <Nav.Link onClick={handleShow2}><i className="bi bi-cart-plus-fill text-white fw-bolder"></i></Nav.Link>
                 <Nav.Link><i className="bi bi-bag-check-fill text-white fw-bolder"></i></Nav.Link>
                 <Nav.Link onClick={handleShow1}><i className="bi bi-box-arrow-in-down text-white fw-bolder"></i></Nav.Link>
 
@@ -246,7 +291,24 @@ const HomePage = () => {
 
       </Modal>
 
-
+      <Offcanvas show={show2} onHide={handleClose2}>
+    <Offcanvas.Header closeButton>
+        <Offcanvas.Title>Cart</Offcanvas.Title>
+    </Offcanvas.Header>
+    <Offcanvas.Body>
+        {cartItems.length > 0 ? (
+            cartItems.map((item, index) => (
+                <div key={index}>
+                    <p>{item.name}</p>
+                    <p>Price: {item.price}</p>
+                    <p>Quantity: {item.quantity}</p>
+                </div>
+            ))
+        ) : (
+            <p>Your cart is empty</p>
+        )}
+    </Offcanvas.Body>
+</Offcanvas>
       <div >
         <div className="video-container container-fluid">
           <video className="video-bg" src={Home.video} autoPlay loop muted></video>
@@ -296,11 +358,11 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-  
+
 
       <div className="container-fluid scnd-content">
         <div className="container">
-          <Menu/>
+          <Menu />
         </div>
       </div>
 
