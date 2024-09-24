@@ -72,8 +72,8 @@ const Menu = () => {
 
     return (
         <>
-            <div className="container-fluid text-center pb-5 pt-lg-5 pt-xl-0">
-                <h1 className='pb-5 fw-bolder pt-lg-5'>Our Nest's Menu</h1>
+            <div className="container-fluid text-center pb-5 pt-lg-5 pt-xl-5 ">
+                <h1 className='pb-5 fw-bolder pt-lg-5 mt-lg-5 '>Our Nest's Menu</h1>
                 <div className="row row-cols-lg-6 row-cols-md-3 row-cols-2 g-5 justify-content-evenly">
                     {/* All Category */}
                     <div

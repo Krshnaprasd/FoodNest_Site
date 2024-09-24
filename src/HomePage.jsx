@@ -44,7 +44,8 @@ const HomePage = () => {
 
       try {
         const response = await axios.get(`http://localhost:5050/cart/${userId}`);
-
+        console.log('API Response:', response.data);
+        
         if (response.data && response.data.items) {
           setCartItems(response.data.items);  // Set items from the response
         } else {
@@ -292,7 +293,7 @@ const HomePage = () => {
       </Modal>
 
       <Offcanvas show={show2} onHide={handleClose2}>
-    <Offcanvas.Header closeButton>
+    <Offcanvas.Header className='cart-bg text-white' closeButton>
         <Offcanvas.Title>Cart</Offcanvas.Title>
     </Offcanvas.Header>
     <Offcanvas.Body>
@@ -361,7 +362,7 @@ const HomePage = () => {
 
 
       <div className="container-fluid scnd-content">
-        <div className="container">
+        <div className="container" id="menu">
           <Menu />
         </div>
       </div>
