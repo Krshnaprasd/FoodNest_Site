@@ -37,6 +37,9 @@ const Menu = () => {
         fetchProducts();
     }, [selectedCategory]);
 
+  
+
+
     const addToCart = async (product) => {
         const userId = localStorage.getItem('userId');
         
@@ -47,14 +50,15 @@ const Menu = () => {
             });
             return;
         }
-
+    
         try {
             await axios.post('http://localhost:5050/cart/add', {
                 userId: userId,
                 product: {
                     productId: product._id,
                     name: product.name,
-                    price: Number(product.price)
+                    price: product.price,
+                    image: product.image  // Include image field here
                 }
             });
             toast.success('Item added to cart', {
@@ -69,7 +73,7 @@ const Menu = () => {
             });
         }
     };
-
+    
     return (
         <>
             <div className="container-fluid text-center pb-5 pt-lg-5 pt-xl-5 ">

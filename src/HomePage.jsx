@@ -45,7 +45,7 @@ const HomePage = () => {
       try {
         const response = await axios.get(`http://localhost:5050/cart/${userId}`);
         console.log('API Response:', response.data);
-        
+
         if (response.data && response.data.items) {
           setCartItems(response.data.items);  // Set items from the response
         } else {
@@ -59,6 +59,54 @@ const HomePage = () => {
 
     fetchCart();
   }, []);
+
+  const updateCartItemQuantity = async (productId, newQuantity) => {
+
+    const fetchCart = async () => {
+      const userId = localStorage.getItem('userId');
+
+      if (!userId) {
+        setCartItems([]); // Set cartItems to an empty array if no user is logged in
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:5050/cart/${userId}`);
+        console.log('API Response:', response.data);
+
+        if (response.data && response.data.items) {
+          setCartItems(response.data.items);  // Set items from the response
+        } else {
+          setCartItems([]); // If no items, set an empty array
+        }
+      } catch (error) {
+        console.error('Error fetching cart items', error);
+        setCartItems([]);  // Set empty array if API call fails
+      }
+    };
+
+    const userId = localStorage.getItem('userId');
+
+    if (!userId) {
+      toast.error('User not logged in');
+      return;
+    }
+
+    try {
+      // Send the new quantity to the server
+      await axios.post('http://localhost:5050/cart/update', {
+        userId,
+        productId,
+        quantity: newQuantity
+      });
+
+      // Fetch updated cart items after quantity change
+      fetchCart();
+    } catch (error) {
+      console.error('Error updating cart item quantity', error);
+    }
+  };
+
 
   // ==============================================================================================
   const [show, setShow] = useState(false);
@@ -125,8 +173,8 @@ const HomePage = () => {
       // }
 
       if (response.ok) {
-        if(data){
-          localStorage.setItem("userId",data._id)
+        if (data) {
+          localStorage.setItem("userId", data._id)
         }
         localStorage.setItem('username', username);
         toast.success('Signup successful!', {
@@ -183,12 +231,12 @@ const HomePage = () => {
 
       const data = await response.json();
 
-      
+
 
       if (response.ok) {
 
-      
-          localStorage.setItem("userId",data._id)
+
+        localStorage.setItem("userId", data._id)
         localStorage.setItem('username', data.username);
 
         toast.success('Login successful', {
@@ -292,24 +340,64 @@ const HomePage = () => {
 
       </Modal>
 
+
       <Offcanvas show={show2} onHide={handleClose2}>
-    <Offcanvas.Header className='cart-bg text-white' closeButton>
-        <Offcanvas.Title>Cart</Offcanvas.Title>
-    </Offcanvas.Header>
-    <Offcanvas.Body>
-        {cartItems.length > 0 ? (
-            cartItems.map((item, index) => (
-                <div key={index}>
-                    <p>{item.name}</p>
-                    <p>Price: {item.price}</p>
-                    <p>Quantity: {item.quantity}</p>
+        <Offcanvas.Header className='cart-bg text-white' closeButton>
+          <Offcanvas.Title>Cart</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          {cartItems.length > 0 ? (
+            <div>
+              {cartItems.map((item, index) => (
+                <div key={index} className="d-flex align-items-center justify-content-between mb-3 p-2 border-bottom">
+                  {/* Left: Product Image */}
+                  <div style={{ width: '20%' }}>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      style={{ width: '100%', height: '80px', objectFit: 'cover' }}
+                    />
+                  </div>
+
+                  {/* Center: Product Name and Price */}
+                  <div style={{ width: '50%', paddingLeft: '15px' }}>
+                    <p><strong>{item.name}</strong></p>
+                    <p>Price: ${item.price}</p>
+                  </div>
+
+                  {/* Right: Quantity Controls */}
+                  <div style={{ width: '20%' }} className="d-flex align-items-center">
+                    <button
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => updateCartItemQuantity(item.productId, item.quantity - 1)}
+                      disabled={item.quantity === 1} // Disable button when quantity is 1
+                    >
+                      -
+                    </button>
+                    <span className="mx-2">{item.quantity}</span>
+                    <button
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => updateCartItemQuantity(item.productId, item.quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-            ))
-        ) : (
+              ))}
+
+              {/* Total Price */}
+              <div className="d-flex justify-content-between mt-4">
+                <h5>Total:</h5>
+                <h5>${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</h5>
+              </div>
+            </div>
+          ) : (
             <p>Your cart is empty</p>
-        )}
-    </Offcanvas.Body>
-</Offcanvas>
+          )}
+        </Offcanvas.Body>
+      </Offcanvas>
+
+
       <div >
         <div className="video-container container-fluid">
           <video className="video-bg" src={Home.video} autoPlay loop muted></video>
