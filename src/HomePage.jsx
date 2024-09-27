@@ -33,57 +33,34 @@ const HomePage = () => {
   const handleClose2 = () => setShow2(false);
   const handleShow2 = () => setShow2(true);
 
+  const fetchCart = async () => {
+    const userId = localStorage.getItem('userId');
+
+    if (!userId) {
+      setCartItems([]); // Set cartItems to an empty array if no user is logged in
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:5050/cart/${userId}`);
+      console.log('API Response:', response.data);
+
+      if (response.data && response.data.items) {
+        setCartItems(response.data.items);  // Set items from the response
+      } else {
+        setCartItems([]); // If no items, set an empty array
+      }
+    } catch (error) {
+      console.error('Error fetching cart items', error);
+      setCartItems([]);  // Set empty array if API call fails
+    }
+  };
+
   useEffect(() => {
-    const fetchCart = async () => {
-      const userId = localStorage.getItem('userId');
-
-      if (!userId) {
-        setCartItems([]); // Set cartItems to an empty array if no user is logged in
-        return;
-      }
-
-      try {
-        const response = await axios.get(`http://localhost:5050/cart/${userId}`);
-        console.log('API Response:', response.data);
-
-        if (response.data && response.data.items) {
-          setCartItems(response.data.items);  // Set items from the response
-        } else {
-          setCartItems([]); // If no items, set an empty array
-        }
-      } catch (error) {
-        console.error('Error fetching cart items', error);
-        setCartItems([]);  // Set empty array if API call fails
-      }
-    };
-
     fetchCart();
-  }, []);
+  }, [show2]);
 
   const updateCartItemQuantity = async (productId, newQuantity) => {
-
-    const fetchCart = async () => {
-      const userId = localStorage.getItem('userId');
-
-      if (!userId) {
-        setCartItems([]); // Set cartItems to an empty array if no user is logged in
-        return;
-      }
-
-      try {
-        const response = await axios.get(`http://localhost:5050/cart/${userId}`);
-        console.log('API Response:', response.data);
-
-        if (response.data && response.data.items) {
-          setCartItems(response.data.items);  // Set items from the response
-        } else {
-          setCartItems([]); // If no items, set an empty array
-        }
-      } catch (error) {
-        console.error('Error fetching cart items', error);
-        setCartItems([]);  // Set empty array if API call fails
-      }
-    };
 
     const userId = localStorage.getItem('userId');
 
@@ -107,6 +84,67 @@ const HomePage = () => {
     }
   };
 
+  const removeCartItem = async (productId) => {
+    const userId = localStorage.getItem('userId');
+
+    if (!userId) {
+      toast.error('User not logged in');
+      return;
+    }
+
+    try {
+      // Send a request to the server to remove the item from the cart
+      await axios.delete(`http://localhost:5050/cart/${userId}/remove`, {
+        data: { productId }
+      });
+
+      // Fetch the updated cart items after removing the product
+      fetchCart();
+    } catch (error) {
+      console.error('Error removing cart item', error);
+    }
+  };
+ //=================================================Order =========================================
+
+ const [showModal, setShowModal] = useState(false);
+  const [userAddress, setUserAddress] = useState('');
+
+
+ const handleOrderClick = () => {
+  setShowModal(true);
+};
+
+const handlePay = async () => {
+  const orderData = {
+    items: cartItems,
+    totalAmount: parseFloat(cartItems.reduce((total, item) => total + item.price * item.quantity, 0)).toFixed(2),
+    address: userAddress,
+  };
+
+  try {
+    const response = await axios.post('http://localhost:5050/order/add', orderData); // Send orderData directly
+
+    // Handle successful order placement
+    handleClose2(); // Close the offcanvas cart
+    setShowModal(false); // Close the payment modal
+
+    // Show success toast
+    toast.success('Payment successful ! Your order has been placed.',{
+      position:'top-center'
+    }); 
+
+    // Clear cart items after order placement
+    setCartItems([]); // This will automatically remove items from the cart
+
+  } catch (error) {
+    console.error('Error placing order:', error.response ? error.response.data : error.message);
+    
+    // Show error toast
+    toast.error('Error placing order.',{
+      position:'top-center'
+    }); 
+  }
+};
 
   // ==============================================================================================
   const [show, setShow] = useState(false);
@@ -308,6 +346,7 @@ const HomePage = () => {
               <Nav className="justify-content-center flex-grow-1">
                 <Nav.Link className='text-white' href="#home"> Home</Nav.Link>
                 <Nav.Link className='text-white' href="#menu">Menu</Nav.Link>
+                <Nav.Link className='text-white' href="#review">Review</Nav.Link>
                 <Nav.Link className='text-white' href="#contact">Contact</Nav.Link>
                 <Nav.Link className='text-white' href="#order">Orders</Nav.Link>
               </Nav>
@@ -360,13 +399,13 @@ const HomePage = () => {
                   </div>
 
                   {/* Center: Product Name and Price */}
-                  <div style={{ width: '50%', paddingLeft: '15px' }}>
+                  <div style={{ width: '40%', paddingLeft: '15px' }}>
                     <p><strong>{item.name}</strong></p>
                     <p>Price: ${item.price}</p>
                   </div>
 
                   {/* Right: Quantity Controls */}
-                  <div style={{ width: '20%' }} className="d-flex align-items-center">
+                  <div style={{ width: '25%' }} className="d-flex align-items-center">
                     <button
                       className="btn btn-outline-secondary btn-sm"
                       onClick={() => updateCartItemQuantity(item.productId, item.quantity - 1)}
@@ -382,6 +421,16 @@ const HomePage = () => {
                       +
                     </button>
                   </div>
+
+                  {/* Remove Button */}
+                  <div style={{ width: '5%' }}>
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => removeCartItem(item.productId)}
+                    >
+                      <i className="bi bi-trash3"></i>
+                    </button>
+                  </div>
                 </div>
               ))}
 
@@ -390,6 +439,11 @@ const HomePage = () => {
                 <h5>Total:</h5>
                 <h5>${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</h5>
               </div>
+
+              {/* Order Button */}
+              <Button className='cart-bg mt-4 border-0' style={{width:370}} onClick={handleOrderClick}>
+                Order to pay
+              </Button>
             </div>
           ) : (
             <p>Your cart is empty</p>
@@ -397,6 +451,35 @@ const HomePage = () => {
         </Offcanvas.Body>
       </Offcanvas>
 
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Order Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>You are about to order:</p>
+          <ul>
+            {cartItems.map(item => (
+              <li key={item.productId}>{item.name} x {item.quantity}</li>
+            ))}
+          </ul>
+          <p>Total Amount: ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</p>
+          <input
+            type="text"
+            placeholder="Enter your address"
+            value={userAddress}
+            onChange={(e) => setUserAddress(e.target.value)}
+            className="form-control"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button className='cart-bg border-0' onClick={handlePay}>
+            Pay
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <div >
         <div className="video-container container-fluid">

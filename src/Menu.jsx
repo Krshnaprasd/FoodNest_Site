@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 
+import Review from './Review.jsx'
 const Menu = () => {
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);  // Track the current page
+    const [totalProducts, setTotalProducts] = useState(0); // Track total products
+    const productsPerPage = 15;
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -25,24 +30,32 @@ const Menu = () => {
             try {
                 const response = await axios.get('http://localhost:5050/product', {
                     params: {
-                        categoryId: selectedCategory !== '' ? selectedCategory : undefined, // Fetch all if empty
+                        categoryId: selectedCategory ? selectedCategory : undefined, // Pass category ID or undefined for 'All'
+                        page: currentPage,
+                        limit: productsPerPage,
                     },
                 });
-                setProducts(response.data);
+                setProducts(response.data.products);
+                setTotalProducts(response.data.total)
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
         };
 
         fetchProducts();
-    }, [selectedCategory]);
+    }, [selectedCategory, currentPage]);
 
-  
 
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const totalPages = Math.ceil(totalProducts / productsPerPage);
 
     const addToCart = async (product) => {
         const userId = localStorage.getItem('userId');
-        
+
         if (!userId) {
             toast.info('Please log in or sign up before adding items to your cart.', {
                 position: 'top-center',
@@ -50,7 +63,7 @@ const Menu = () => {
             });
             return;
         }
-    
+
         try {
             await axios.post('http://localhost:5050/cart/add', {
                 userId: userId,
@@ -73,16 +86,17 @@ const Menu = () => {
             });
         }
     };
-    
+
     return (
         <>
-            <div className="container-fluid text-center pb-5 pt-lg-5 pt-xl-5 ">
+            <div className="container-fluid text-center pt-lg-5 pt-xl-5 ">
                 <h1 className='pb-5 fw-bolder pt-lg-5 mt-lg-5 '>Our Nest's Menu</h1>
                 <div className="row row-cols-lg-6 row-cols-md-3 row-cols-2 g-5 justify-content-evenly">
                     {/* All Category */}
                     <div
                         className={`col ${selectedCategory === '' ? 'active' : ''}`}
-                        onClick={() => setSelectedCategory('')}>
+                        onClick={() => setSelectedCategory('')}
+                    >
                         <img
                             className='menu-img img-fluid mb-3'
                             src="https://img.freepik.com/premium-photo/typical-indian-dish-thali-vegetarian-dishes-one-large-round-plate_549515-339.jpg"
@@ -96,7 +110,8 @@ const Menu = () => {
                         <div
                             className={`col ${selectedCategory === category._id ? 'active' : ''}`}
                             key={category._id}
-                            onClick={() => setSelectedCategory(category._id)}>
+                            onClick={() => setSelectedCategory(category._id)}
+                        >
                             <img
                                 className='menu-img img-fluid mb-3'
                                 src={category.image}
@@ -107,9 +122,11 @@ const Menu = () => {
                     ))}
                     <hr />
                 </div>
+                </div>
+
 
                 {/* Display Products */}
-                <div className="container">
+                <div className="container-fluid  text-center pb-5">
                     <div className="row row-cols-xl-5 row-cols-md-3 row-cols-lg-4 row-cols-1 justify-content-around g-3 mt-5 mb-5">
                         {products.map(product => (
                             <div className="col" key={product._id}>
@@ -126,9 +143,46 @@ const Menu = () => {
                             </div>
                         ))}
                     </div>
+
+                    {/* Pagination */}
+                    <div className="d-flex justify-content-center">
+                        <nav>
+                            <ul className="pagination">
+                                {/* Previous button */}
+                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                                        Previous
+                                    </button>
+                                </li>
+
+                                {/* Page numbers */}
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                                            {index + 1}
+                                        </button>
+                                    </li>
+                                ))}
+
+                                {/* Next button */}
+                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                                        Next
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
-            </div>
+           
+                <div className="container-fluid mb-5" id='review'>
+                                <Review/>
+                </div>
+             
+               
+           
         </>
+        
     );
 };
 
