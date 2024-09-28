@@ -12,7 +12,11 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import Vision from './Vision.jsx'
 import Menu from './Menu.jsx'
+import Book from './Book.jsx'
+import Review from './Review.jsx'
+import Contact from './Contact.jsx'
 
 const HomePage = () => {
 
@@ -104,47 +108,76 @@ const HomePage = () => {
       console.error('Error removing cart item', error);
     }
   };
- //=================================================Order =========================================
+  //=================================================Order =========================================
+  const [show4, setShow4] = useState(false);
+  const handleClose4 = () => setShow4(false);
+  const handleShow4 = () => setShow4(true);
 
- const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [userAddress, setUserAddress] = useState('');
 
 
- const handleOrderClick = () => {
-  setShowModal(true);
-};
 
-const handlePay = async () => {
-  const orderData = {
-    items: cartItems,
-    totalAmount: parseFloat(cartItems.reduce((total, item) => total + item.price * item.quantity, 0)).toFixed(2),
-    address: userAddress,
+  const handleOrderClick = () => {
+    setShowModal(true);
   };
 
-  try {
-    const response = await axios.post('http://localhost:5050/order/add', orderData); // Send orderData directly
+  const handlePay = async () => {
 
-    // Handle successful order placement
-    handleClose2(); // Close the offcanvas cart
-    setShowModal(false); // Close the payment modal
+    const userId = localStorage.getItem('userId');
 
-    // Show success toast
-    toast.success('Payment successful ! Your order has been placed.',{
-      position:'top-center'
-    }); 
+    const orderData = {
+      items: cartItems,
+      totalAmount: parseFloat(cartItems.reduce((total, item) => total + item.price * item.quantity, 0)).toFixed(2),
+      address: userAddress,
+      userId: userId,
+    };
 
-    // Clear cart items after order placement
-    setCartItems([]); // This will automatically remove items from the cart
+    try {
+      const response = await axios.post('http://localhost:5050/order/add', orderData); // Send orderData directly
 
-  } catch (error) {
-    console.error('Error placing order:', error.response ? error.response.data : error.message);
-    
-    // Show error toast
-    toast.error('Error placing order.',{
-      position:'top-center'
-    }); 
-  }
+      // Handle successful order placement
+      handleClose2(); // Close the offcanvas cart
+      setShowModal(false); // Close the payment modal
+
+      // Show success toast
+      toast.success('Payment successful ! Your order has been placed.', {
+        position: 'top-center'
+      });
+
+      // Clear cart items after order placement
+      setCartItems([]); // This will automatically remove items from the cart
+
+    } catch (error) {
+      console.error('Error placing order:', error.response ? error.response.data : error.message);
+
+      // Show error toast
+      toast.error('Error placing order.', {
+        position: 'top-center'
+      });
+    }
+  };
+
+
+  const [orders, setOrders] = useState([]);
+
+  const fetchOrders = async () => {
+    const userId = localStorage.getItem('userId');
+    try {
+        const response = await axios.get(`http://localhost:5050/order/${userId}`);
+       
+          setOrders(response.data);  // Set items from the response
+      
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        toast.error('Failed to fetch orders!');
+    }
 };
+
+useEffect(() => {
+  
+  fetchOrders();
+}, [show4]);
 
   // ==============================================================================================
   const [show, setShow] = useState(false);
@@ -346,14 +379,15 @@ const handlePay = async () => {
               <Nav className="justify-content-center flex-grow-1">
                 <Nav.Link className='text-white' href="#home"> Home</Nav.Link>
                 <Nav.Link className='text-white' href="#menu">Menu</Nav.Link>
+                <Nav.Link className='text-white' href="#blog">Blog</Nav.Link>
                 <Nav.Link className='text-white' href="#review">Review</Nav.Link>
                 <Nav.Link className='text-white' href="#contact">Contact</Nav.Link>
-                <Nav.Link className='text-white' href="#order">Orders</Nav.Link>
+
               </Nav>
               <Nav className='d-flex '>
                 <Nav.Link><i className="bi bi-arrow-clockwise text-white fw-bolder"></i></Nav.Link>
                 <Nav.Link onClick={handleShow2}><i className="bi bi-cart-plus-fill text-white fw-bolder"></i></Nav.Link>
-                <Nav.Link><i className="bi bi-bag-check-fill text-white fw-bolder"></i></Nav.Link>
+                <Nav.Link onClick={handleShow4}><i className="bi bi-bag-check-fill text-white fw-bolder"></i></Nav.Link>
                 <Nav.Link onClick={handleShow1}><i className="bi bi-box-arrow-in-down text-white fw-bolder"></i></Nav.Link>
 
                 <Nav.Link onClick={handleLogout}><i className="bi bi-box-arrow-in-up text-white fw-bolder"></i></Nav.Link>
@@ -362,6 +396,61 @@ const handlePay = async () => {
           </Container>
         </Navbar>
       </div>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Order Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="card p-3 mb-3">
+            <p>You are about to order:</p>
+
+            {cartItems.map(item => (
+              <div key={item.productId} className="card mb-3 p-2 d-flex flex-row align-items-center">
+                {/* Left: Product Image */}
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={{ width: '80px', height: '80px', objectFit: 'cover', marginRight: '15px' }}
+                  className="rounded"
+                />
+
+                {/* Center: Product Name and Price */}
+                <div className="d-flex flex-column" style={{ flex: 1 }}>
+                  <p><strong>{item.name}</strong></p>
+                  <p>Price: ${item.price}</p>
+                </div>
+
+                {/* Right: Quantity */}
+                <div className="text-right">
+                  <p>Quantity: {item.quantity}</p>
+                </div>
+              </div>
+            ))}
+
+            {/* Total and Address Input */}
+            <div className="mt-3">
+              <p><strong>Total Amount: ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</strong></p>
+
+              <input
+                type="text"
+                placeholder="Enter your address"
+                value={userAddress}
+                onChange={(e) => setUserAddress(e.target.value)}
+                className="form-control mt-2"
+              />
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button className='cart-bg border-0' onClick={handlePay}>
+            Pay
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Modal centered size="sm" show={show1} onHide={handleClose1}>
         <Modal.Header closeButton>
           <div className='text-center fw-bolder '><h3>Login</h3></div><br></br>
@@ -381,7 +470,7 @@ const handlePay = async () => {
 
 
       <Offcanvas show={show2} onHide={handleClose2}>
-        <Offcanvas.Header className='cart-bg text-white' closeButton>
+        <Offcanvas.Header className='cart-bg' closeButton>
           <Offcanvas.Title>Cart</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
@@ -441,7 +530,7 @@ const handlePay = async () => {
               </div>
 
               {/* Order Button */}
-              <Button className='cart-bg mt-4 border-0' style={{width:370}} onClick={handleOrderClick}>
+              <Button className='order-bg mt-4 border-0' style={{ width: 370 }} onClick={handleOrderClick}>
                 Order to pay
               </Button>
             </div>
@@ -451,37 +540,45 @@ const handlePay = async () => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Order Confirmation</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>You are about to order:</p>
-          <ul>
-            {cartItems.map(item => (
-              <li key={item.productId}>{item.name} x {item.quantity}</li>
-            ))}
-          </ul>
-          <p>Total Amount: ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</p>
-          <input
-            type="text"
-            placeholder="Enter your address"
-            value={userAddress}
-            onChange={(e) => setUserAddress(e.target.value)}
-            className="form-control"
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-          <Button className='cart-bg border-0' onClick={handlePay}>
-            Pay
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Offcanvas show={show4} onHide={handleClose4} placement='end'>
+        <Offcanvas.Header className='cart-bg' closeButton>
+          <Offcanvas.Title>Order Items</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+        {orders.length === 0 ? (
+    <p>No orders found.</p>
+) : (
+    orders.map((order) => (
+        <div key={order._id} className="order-card mb-3 p-2 border rounded">
 
-      <div >
+            <ul className="list-unstyled">
+                {order.items.map((item) => (
+                    <li key={item.productId} className="d-flex align-items-center mb-2">
+                        <img
+                            src={item.image}
+                            alt={item.name}
+                            style={{ width: '60px', height: '60px', objectFit: 'cover', marginRight: '10px' }}
+                        />
+                        <div className="flex-grow-1 text-start">
+                            <p className="mb-0"><strong>{item.name}</strong></p>
+                            <p className="mb-0">Price: ${item.price}</p>
+                        </div>
+                        <div className="text-end me-2">
+                            <p className="mb-0"><strong>Quantity:</strong> {item.quantity}</p>
+                            <p></p>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    ))
+)}
+        </Offcanvas.Body>
+      </Offcanvas>
+
+
+
+      <div id='home'>
         <div className="video-container container-fluid">
           <video className="video-bg" src={Home.video} autoPlay loop muted></video>
         </div>
@@ -533,11 +630,23 @@ const handlePay = async () => {
 
 
       <div className="container-fluid scnd-content">
-        <div className="container" id="menu">
-          <Menu />
+        <div className="container">
+          <Vision />
         </div>
       </div>
+      <div className="container-fluid" id="menu">
+        <div className="container">
+          <Menu />
+        </div>
 
+      </div>
+      <Book />
+
+
+      <div className="container-fluid mb-5 text-center" id='review'>
+        <Review />
+      </div>
+      <Contact />
     </>
   )
 }

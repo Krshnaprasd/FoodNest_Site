@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 
-import Review from './Review.jsx'
+
 const Menu = () => {
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
@@ -89,8 +89,8 @@ const Menu = () => {
 
     return (
         <>
-            <div className="container-fluid text-center pt-lg-5 pt-xl-5 ">
-                <h1 className='pb-5 fw-bolder pt-lg-5 mt-lg-5 '>Our Nest's Menu</h1>
+            <div className="container-fluid text-center g-5 pt-5">
+                <h1 className='pb-5 fw-bolder  '>Our Nest's Menu</h1>
                 <div className="row row-cols-lg-6 row-cols-md-3 row-cols-2 g-5 justify-content-evenly">
                     {/* All Category */}
                     <div
@@ -122,67 +122,63 @@ const Menu = () => {
                     ))}
                     <hr />
                 </div>
-                </div>
+            </div>
 
 
-                {/* Display Products */}
-                <div className="container-fluid  text-center pb-5">
-                    <div className="row row-cols-xl-5 row-cols-md-3 row-cols-lg-4 row-cols-1 justify-content-around g-3 mt-5 mb-5">
-                        {products.map(product => (
-                            <div className="col" key={product._id}>
-                                <div className="card">
-                                    <img src={product.image} className="card-img" alt={product.name} style={{ height: 200 }} />
-                                    <div className="card-body">
-                                        <h5>{product.name}</h5>
-                                        <p className="card-text">${product.price}</p>
-                                    </div>
-                                    <div>
-                                        <button className='prod-btn border-0 text-white mb-3' onClick={() => addToCart(product)}>Add to Cart</button>
-                                    </div>
+            {/* Display Products */}
+            <div className="container-fluid  text-center pb-5">
+                <div className="row row-cols-xl-5 row-cols-md-3 row-cols-lg-4 row-cols-1 justify-content-around g-3 mt-5 mb-5">
+                    {products.map(product => (
+                        <div className="col" key={product._id}>
+                            <div className="card menu-bg">
+                                <img src={product.image} className="card-img" alt={product.name} style={{ height: 200 }} />
+                                <div className="card-body">
+                                    <h5>{product.name}</h5>
+                                    <p className="card-text">${product.price}</p>
+                                </div>
+                                <div>
+                                    <button className='prod-btn border-0 text-white mb-3' onClick={() => addToCart(product)}>Add to Cart</button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Pagination */}
-                    <div className="d-flex justify-content-center">
-                        <nav>
-                            <ul className="pagination">
-                                {/* Previous button */}
-                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
-                                        Previous
-                                    </button>
-                                </li>
-
-                                {/* Page numbers */}
-                                {Array.from({ length: totalPages }, (_, index) => (
-                                    <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                                        <button className="page-link" onClick={() => handlePageChange(index + 1)}>
-                                            {index + 1}
-                                        </button>
-                                    </li>
-                                ))}
-
-                                {/* Next button */}
-                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
-                                        Next
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
+                        </div>
+                    ))}
                 </div>
-           
-                <div className="container-fluid mb-5" id='review'>
-                                <Review/>
-                </div>
-             
-               
-           
+
+                {/* Pagination */}
+               <div className="d-flex justify-content-center">
+    <nav>
+        <ul className="pagination custom-pagination">
+            {/* Previous button */}
+            <li className={`page-item previous ${currentPage === 1 ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                    Previous
+                </button>
+            </li>
+
+            {/* Page numbers */}
+            {Array.from({ length: totalPages }, (_, index) => (
+                <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(index + 1)}>
+                        {index + 1}
+                    </button>
+                </li>
+            ))}
+
+            {/* Next button */}
+            <li className={`page-item next ${currentPage === totalPages ? 'disabled' : ''}`}>
+                <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                    Next
+                </button>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+            </div>
+
+
         </>
-        
+
     );
 };
 

@@ -1,40 +1,87 @@
 import React from 'react'
-import Container from 'react-bootstrap/Container';
 
 const Contact = () => {
     return (
         <>
-            <Container fluid className='text-center pb-5'>
-                <h1 className='fw-bolder '>Contact info</h1>
-                <div className="row text-center">
-                    <div className="col-md-5 cart-bg fw-bolder text-white mt-5" style={{ padding: 50 }}>
-                        <h1>Share your Experience</h1>
-                        <h1>Real Receipe taste</h1>
-                    </div>
-                    <div className="col-md-7 pt-5" >
-                        <div className="form-floating mb-3">
-                            <input type="text" className="form-control" id="floatingInput" placeholder="name@example.com" />
-                            <label htmlFor="floatingInput">Name</label>
-                        </div>
-                        <div className="form-floating mb-3">
-                            <input type="text" className="form-control" id="floatingDes" placeholder="Designation" />
-                            <label htmlFor="floatingDes">Designation</label>
-                        </div>
-
-                        <div className="form-floating mb-3">
-                            <textarea className="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
-                            <label htmlFor="floatingTextarea">Comments</label>
-                        </div>
-                      
-                        <div class="d-grid gap-3">
-                            <button className="cart-bg border-0 rounded-2 text-white fw-bold p-3" type="button">Review</button>
-                            
-                        </div>
-                    </div>
+          <div className="bg-dark bg-gradient" id='contact'>
+            <div className="container-fluid text-white-50 p-4">
+              <div className="row row-cols-md-2 d-flex justidy-content-around">
+                <div className="col-lg-3 pt-3">
+                  <h3 className='pb-3'>FoodNest</h3>
+                  <p style={{ textAlign: 'justify' }}>
+                    Your one stop destination for succulent non-veg food that will leave you wanting more, every time!
+                  </p>
+    
                 </div>
-            </Container>
+                <div className="col-lg-2  pt-3">
+                  <h3 className='ms-lg-4 pb-3'>Explore</h3>
+                  <ul className='lis'>
+                    <li>Company Profile</li>
+                    <li>About</li>
+                    <li>Help Center</li>
+                    <li>Careers</li>
+                    <li>Features</li>
+                  </ul>
+                </div>
+                <div className="col-lg-4 pt-3">
+    
+                  <div className="row text-start">
+                    <h3 className='ms-lg-4 pb-3'>Open Hours</h3>
+                    <div className="col-6 text-start">
+                      <ul className='lis'>
+                        <li>Monday </li>
+                        <li>Tuesday </li>
+                        <li>Wednesday </li>
+                        <li>Thursday </li>
+                        <li>Friday</li>
+                        <li>Saturday  </li>
+                        <li>Sunday  </li>
+                      </ul>
+                    </div>
+                    <div className="col-6 text-start">
+                      <ul className='lis'>
+                        <li> 9.00 - 24.00</li>
+                        <li> 9.00 - 24.00</li>
+                        <li> 9.00 - 24.00</li>
+                        <li> 9.00 - 24.00</li>
+                        <li> 9.00 - 24.00</li>
+                        <li> 9.00 - 24.00</li>
+                        <li> 9.00 - 24.00</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+    
+                <div className="col-lg-3 pt-3"  style={{textAlign:'justify'}}>
+                <h3 className=' pb-3'>Contact info</h3>
+                <p>
+                <i class="bi bi-geo-alt"></i> &nbsp;  No. 3 Richard street, Near Temple-city, Madurai.
+                </p>
+                <p>
+                <i class="bi bi-telephone"></i> &nbsp; +452 2367891
+                </p>
+                <p>
+                <i class="bi bi-envelope-arrow-up"></i> &nbsp; foodnest@yahoo.in
+                </p>
+                </div>
+
+              
+              </div>
+              <hr></hr>
+              <div className='d-md-flex justify-content-md-between text-center'>
+              <h6>© Copyright 2024 FoodNest. All Rights Reserved</h6> <span>Follow us  &nbsp;&nbsp;
+              <i class="bi bi-facebook"></i> &nbsp;&nbsp;
+              <i class="bi bi-instagram"></i> &nbsp;&nbsp;
+              <i class="bi bi-twitter"></i>
+              </span>
+              </div>
+             
+            </div>
+          </div>
+    
         </>
-    )
+      )
+ 
 }
 
 export default Contact;
