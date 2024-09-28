@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 
 
 const Menu = () => {
+
+
+    useEffect(() => {
+        AOS.init({
+          duration: 1000, 
+          once: false,    
+          mirror: false,  
+        });
+      }, []);
+      
+
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -126,7 +139,7 @@ const Menu = () => {
 
 
             {/* Display Products */}
-            <div className="container-fluid  text-center pb-5">
+            <div className="container-fluid  text-center pb-5" data-aos="fade-up">
                 <div className="row row-cols-xl-5 row-cols-md-3 row-cols-lg-4 row-cols-1 justify-content-around g-3 mt-5 mb-5">
                     {products.map(product => (
                         <div className="col" key={product._id}>

@@ -1,6 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHamburger } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +32,16 @@ const HomePage = () => {
 
     }
   ]
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, 
+      once: false,    
+      mirror: false,  
+    });
+  }, []);
+
+
   // ============================================= Cart ===========================================
   const [cartItems, setCartItems] = useState([]);
   const [show2, setShow2] = useState(false);
@@ -629,21 +641,22 @@ useEffect(() => {
       </div>
 
 
-      <div className="container-fluid scnd-content">
+      <div className="container-fluid scnd-content"  data-aos="fade-up">
         <div className="container">
           <Vision />
         </div>
       </div>
-      <div className="container-fluid" id="menu">
+      <div className="container-fluid" id="menu"  data-aos="fade-up">
         <div className="container">
           <Menu />
         </div>
 
       </div>
+      <div className="container-fluid"  data-aos="fade-up">
       <Book />
+      </div>
 
-
-      <div className="container-fluid mb-5 text-center" id='review'>
+      <div className="container-fluid mb-5 text-center" id='review' data-aos='fade-up' >
         <Review />
       </div>
       <Contact />
