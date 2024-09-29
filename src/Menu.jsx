@@ -16,7 +16,7 @@ const Menu = () => {
           mirror: false,  
         });
       }, []);
-      
+        
 
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);

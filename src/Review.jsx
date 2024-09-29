@@ -53,7 +53,7 @@ import { Carousel, Card } from 'react-bootstrap';
 
   <div className="row" id='review'>
 
-  <h1 className='fw-bolder pb-lg-5 pb-3 pt-5'> Reviews</h1>
+  <h1 className='fw-bolder pb-lg-5 pb-3 pt-5'>FoodNest's Happy Customers</h1>
 
   <Carousel  className='d-lg-block d-none' interval={3000}>
   {reviews.map((_, index) => {
