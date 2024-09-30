@@ -17,6 +17,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Vision from './Vision.jsx'
 import Menu from './Menu.jsx'
 import Book from './Book.jsx'
+import Blog from './Blog.jsx'
 import Review from './Review.jsx'
 import Contact from './Contact.jsx'
 
@@ -656,8 +657,11 @@ useEffect(() => {
       <Book />
       </div>
 
-      <div className="container-fluid mb-5 text-center" id='review' data-aos='fade-up' >
+      <div className="container-fluid mb-3 text-center" id='review' data-aos='fade-up' >
         <Review />
+      </div>
+      <div className="container-fluid mb-5" id='blog' data-aos='fade-up'>
+        <Blog/>
       </div>
       <Contact />
     </>

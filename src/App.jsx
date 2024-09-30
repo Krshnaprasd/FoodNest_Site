@@ -6,6 +6,7 @@ import Product from './Product.jsx'
 import Menu from './Menu.jsx'
 import Book from './Book.jsx'
 import Review from './Review.jsx'
+import Blog from './Blog.jsx'
 import Contact from './Contact.jsx'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path='/menu' element={<Menu/>}/>
         <Route path='/book' element={<Book/>}/>
         <Route path='/review' element={<Review/>}/>
+        <Route path='/blog' element={<Blog/>}/>
         <Route path='/contact' element={<Contact/>}/>
         
       </Routes>
