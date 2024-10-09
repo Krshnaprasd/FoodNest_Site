@@ -1,0 +1,17 @@
+{
+    "projects": {
+      "frontend": {
+        "src": "site",
+        "output": "build"
+      },
+      "backend": {
+        "src": "rest"
+      }
+    },
+    "rewrites": [
+      {
+        "source": "/api/(.*)",
+        "destination": "https://food-nest-rest.vercel.app/api/$1"
+      }
+    ]
+  }
