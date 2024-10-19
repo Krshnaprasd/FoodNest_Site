@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Nav from 'react-bootstrap/Nav';
 
 const Product = () => {
 
@@ -67,10 +68,23 @@ const Product = () => {
 
   return (
     <>
-      <div className="container-fluid pt-3">
+    <div className="container-fluid pt-5 ">
+      <div className="ccontainer">
+      <Nav fill variant="tabs" defaultActiveKey="/home">
+      <Nav.Item>
+        <Nav.Link href="/product"> Add Product</Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link href="/list">Products list</Nav.Link>
+      </Nav.Item>
+      </Nav>
+      </div>
+    </div>
+
+      <div className="container-fluid pt-5 pb-5">
         <div className="container">
           <div className="row text-center">
-            <div className="col-md-6 pt-lg-5 mt-lg-5">
+            <div className="col-md-6  mt-lg-3">
               <h1 className='logotxt fw-bolder'>FoodNest</h1>
               <h4 className='fw-bolder pb-md-3 d-none d-sm-block'>" Place for Peace - Feast for Food "</h4>
               <h5 className='fw-bolder pb-3  d-sm-none d-block'>" Place for Peace - Feast for Food "</h5>
@@ -91,7 +105,8 @@ const Product = () => {
               </div>
               <ToastContainer />
             </div>
-            <div className="col-md-6">
+            <div className="col"></div>
+            <div className="col-md-5" >
               <img className='img-fluid prod-img' src={product.img} />
             </div>
           </div>

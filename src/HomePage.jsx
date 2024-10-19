@@ -10,6 +10,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -128,7 +130,8 @@ const HomePage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [userAddress, setUserAddress] = useState('');
-
+  const [userEmail, setUserEmail] = useState('');   // Added state for email
+  
 
 
   const handleOrderClick = () => {
@@ -136,40 +139,37 @@ const HomePage = () => {
   };
 
   const handlePay = async () => {
-
     const userId = localStorage.getItem('userId');
-
+  
     const orderData = {
       items: cartItems,
       totalAmount: parseFloat(cartItems.reduce((total, item) => total + item.price * item.quantity, 0)).toFixed(2),
       address: userAddress,
       userId: userId,
+      emailId: userEmail,  // Added email field
+     
     };
-
+  
     try {
-      const response = await axios.post('http://localhost:5050/order/add', orderData); // Send orderData directly
-
-      // Handle successful order placement
-      handleClose2(); // Close the offcanvas cart
-      setShowModal(false); // Close the payment modal
-
-      // Show success toast
-      toast.success('Payment successful ! Your order has been placed.', {
+      const response = await axios.post('http://localhost:5050/order/add', orderData);
+  
+      handleClose2();
+      setShowModal(false);
+  
+      toast.success('Payment successful! Your order has been placed.', {
         position: 'top-center'
       });
-
-      // Clear cart items after order placement
-      setCartItems([]); // This will automatically remove items from the cart
-
+  
+      setCartItems([]);
     } catch (error) {
       console.error('Error placing order:', error.response ? error.response.data : error.message);
-
-      // Show error toast
+  
       toast.error('Error placing order.', {
         position: 'top-center'
       });
     }
   };
+  
 
 
   const [orders, setOrders] = useState([]);
@@ -410,59 +410,75 @@ useEffect(() => {
         </Navbar>
       </div>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Order Confirmation</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="card p-3 mb-3">
-            <p>You are about to order:</p>
+    <Modal.Header closeButton>
+      <Modal.Title>Order Confirmation</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <div className="card p-3 mb-3">
+        <p>You are about to order:</p>
 
-            {cartItems.map(item => (
-              <div key={item.productId} className="card mb-3 p-2 d-flex flex-row align-items-center">
-                {/* Left: Product Image */}
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  style={{ width: '80px', height: '80px', objectFit: 'cover', marginRight: '15px' }}
-                  className="rounded"
-                />
+        {cartItems.map(item => (
+          <div key={item.productId} className="card mb-3 p-2 d-flex flex-row align-items-center">
+            {/* Left: Product Image */}
+            <img
+              src={item.image}
+              alt={item.name}
+              style={{ width: '80px', height: '80px', objectFit: 'cover', marginRight: '15px' }}
+              className="rounded"
+            />
 
-                {/* Center: Product Name and Price */}
-                <div className="d-flex flex-column" style={{ flex: 1 }}>
-                  <p><strong>{item.name}</strong></p>
-                  <p>Price: ${item.price}</p>
-                </div>
+            {/* Center: Product Name and Price */}
+            <div className="d-flex flex-column" style={{ flex: 1 }}>
+              <p><strong>{item.name}</strong></p>
+              <p>Price: ${item.price}</p>
+            </div>
 
-                {/* Right: Quantity */}
-                <div className="text-right">
-                  <p>Quantity: {item.quantity}</p>
-                </div>
-              </div>
-            ))}
-
-            {/* Total and Address Input */}
-            <div className="mt-3">
-              <p><strong>Total Amount: ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</strong></p>
-
-              <input
-                type="text"
-                placeholder="Enter your address"
-                value={userAddress}
-                onChange={(e) => setUserAddress(e.target.value)}
-                className="form-control mt-2"
-              />
+            {/* Right: Quantity */}
+            <div className="text-right">
+              <p>Quantity: {item.quantity}</p>
             </div>
           </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-          <Button className='cart-bg border-0' onClick={handlePay}>
-            Pay
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        ))}
+
+        {/* Total, Email, Address, and Location Input */}
+        <div className="mt-3">
+          <p><strong>Total Amount: ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</strong></p>
+
+          {/* Email Input */}
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={userEmail}
+            onChange={(e) => setUserEmail(e.target.value)}
+            className="form-control mt-2"
+            required
+          />
+
+          {/* Address Input */}
+          <input
+            type="text"
+            placeholder="Enter your address"
+            value={userAddress}
+            onChange={(e) => setUserAddress(e.target.value)}
+            className="form-control mt-2"
+            required
+          />
+
+          {/* Location Input (Latitude and Longitude) */}
+        
+        </div>
+      </div>
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={() => setShowModal(false)}>
+        Close
+      </Button>
+      <Button className='cart-bg border-0' onClick={handlePay}>
+        Pay
+      </Button>
+    </Modal.Footer>
+  </Modal>
+
 
       <Modal centered size="sm" show={show1} onHide={handleClose1}>
         <Modal.Header closeButton>
