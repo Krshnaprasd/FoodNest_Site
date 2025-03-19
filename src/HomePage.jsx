@@ -138,38 +138,99 @@ const HomePage = () => {
     setShowModal(true);
   };
 
+  // const handlePay = async () => {
+  //   const userId = localStorage.getItem('userId');
+  
+  //   const orderData = {
+  //     items: cartItems,
+  //     totalAmount: parseFloat(cartItems.reduce((total, item) => total + item.price * item.quantity, 0)).toFixed(2),
+  //     address: userAddress,
+  //     userId: userId,
+  //     emailId: userEmail,  // Added email field
+     
+  //   };
+  
+  //   try {
+  //     const response = await axios.post('http://localhost:5050/order/add', orderData);
+  
+  //     handleClose2();
+  //     setShowModal(false);
+  
+  //     toast.success('Payment successful! Your order has been placed.', {
+  //       position: 'top-center'
+  //     });
+  
+  //     setCartItems([]);
+  //   } catch (error) {
+  //     console.error('Error placing order:', error.response ? error.response.data : error.message);
+  
+  //     toast.error('Error placing order.', {
+  //       position: 'top-center'
+  //     });
+  //   }
+  // };
+  
+
   const handlePay = async () => {
-    const userId = localStorage.getItem('userId');
+
+    if (!window.Razorpay) {
+      console.error("Razorpay SDK not loaded");
+      toast.error("Payment gateway not available. Please try again later.");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId");
   
     const orderData = {
       items: cartItems,
       totalAmount: parseFloat(cartItems.reduce((total, item) => total + item.price * item.quantity, 0)).toFixed(2),
       address: userAddress,
       userId: userId,
-      emailId: userEmail,  // Added email field
-     
+      emailId: userEmail,
     };
   
     try {
-      const response = await axios.post('http://localhost:5050/order/add', orderData);
+      // Step 1: Create an order in Razorpay
+      const { data } = await axios.post("http://localhost:5050/order/create-order", orderData);
   
-      handleClose2();
-      setShowModal(false);
+      const options = {
+        key: "rzp_test_eAQoP8Cti3tOBH",
+        amount: orderData.totalAmount * 100,
+        currency: "INR",
+        name: "foodNest",
+        description: "Order Payment",
+        order_id: data.orderId,
+        handler: async (response) => {
+          try {
+            // Step 2: Verify payment
+            await axios.post("http://localhost:5050/order/add", {
+              ...response,
+              ...orderData,
+            });
   
-      toast.success('Payment successful! Your order has been placed.', {
-        position: 'top-center'
-      });
+            setShowModal(false);
+            toast.success("Payment successful! Your order has been placed.", { position: "top-center" });
+            setCartItems([]);
+          } catch (error) {
+            console.error("Error verifying payment:", error);
+            toast.error("Payment verification failed.", { position: "top-center" });
+          }
+        },
+        prefill: {
+          email: userEmail,
+        },
+        theme: {
+          color: "#F37254",
+        },
+      };
   
-      setCartItems([]);
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
     } catch (error) {
-      console.error('Error placing order:', error.response ? error.response.data : error.message);
-  
-      toast.error('Error placing order.', {
-        position: 'top-center'
-      });
+      console.error("Error processing payment:", error);
+      toast.error("Error processing payment.", { position: "top-center" });
     }
   };
-  
 
 
   const [orders, setOrders] = useState([]);
@@ -314,6 +375,7 @@ useEffect(() => {
       });
 
       const data = await response.json();
+      
 
 
 

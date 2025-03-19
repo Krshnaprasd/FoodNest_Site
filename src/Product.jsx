@@ -66,6 +66,9 @@ const Product = () => {
     fetchCategories();
   }, []);
 
+
+
+  
   return (
     <>
     <div className="container-fluid pt-5 ">
@@ -106,7 +109,7 @@ const Product = () => {
               <ToastContainer />
             </div>
             <div className="col"></div>
-            <div className="col-md-5" >
+            <div className="col-md-5 " >
               <img className='img-fluid prod-img' src={product.img} />
             </div>
           </div>
